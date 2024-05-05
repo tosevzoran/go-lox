@@ -1,6 +1,6 @@
 # GoLox
 
-GoLox is an attempt to implement an interprter for the Lox language the [CraftingInterpreters](https://craftinginterpreters.com/) book.
+GoLox is an attempt to implement an interprter for the Lox language from the [CraftingInterpreters](https://craftinginterpreters.com/) book.
 
 ## Running/Building
 
