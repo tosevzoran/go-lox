@@ -24,6 +24,10 @@ go build .
 
 ## Grammar for Lox expressions
 
+### Chapter 5
+
+Initial suport for a handful expressions
+
 ```
 expression     → literal
                | unary
