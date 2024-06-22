@@ -9,6 +9,10 @@ func NewInterpreter() Interpteter {
 	return Interpteter{}
 }
 
+func (i Interpteter) interpret(expr IExpr) (any, error) {
+	return i.evaluate(expr)
+}
+
 func (i Interpteter) VisitBinaryExpr(expr BinaryExpr) (any, error) {
 	left, err := i.evaluate(expr.left)
 

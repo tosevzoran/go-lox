@@ -36,7 +36,7 @@ func main() {
 
 	lox := golox.New(ioReader)
 
-	err := lox.Run()
+	err := lox.Run(len(args) == 0)
 
 	if err != nil {
 		fmt.Printf("unexpected error %v\n", err)

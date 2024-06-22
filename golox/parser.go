@@ -26,15 +26,15 @@ func NewParser(t []Token) Parser {
 	return Parser{t, 0}
 }
 
-func (p Parser) parse() {
-	p.expression()
+func (p *Parser) parse() (IExpr, error) {
+	return p.expression()
 }
 
-func (p Parser) expression() (IExpr, error) {
+func (p *Parser) expression() (IExpr, error) {
 	return p.equality()
 }
 
-func (p Parser) equality() (IExpr, error) {
+func (p *Parser) equality() (IExpr, error) {
 	expr, err := p.comparison()
 
 	if err != nil {
@@ -55,7 +55,7 @@ func (p Parser) equality() (IExpr, error) {
 	return expr, nil
 }
 
-func (p Parser) comparison() (IExpr, error) {
+func (p *Parser) comparison() (IExpr, error) {
 	expr, err := p.term()
 
 	if err != nil {
@@ -76,7 +76,7 @@ func (p Parser) comparison() (IExpr, error) {
 	return expr, nil
 }
 
-func (p Parser) term() (IExpr, error) {
+func (p *Parser) term() (IExpr, error) {
 	expr, err := p.factor()
 
 	if err != nil {
@@ -97,7 +97,7 @@ func (p Parser) term() (IExpr, error) {
 	return expr, err
 }
 
-func (p Parser) factor() (IExpr, error) {
+func (p *Parser) factor() (IExpr, error) {
 	expr, err := p.unary()
 
 	if err != nil {
@@ -118,7 +118,7 @@ func (p Parser) factor() (IExpr, error) {
 	return expr, nil
 }
 
-func (p Parser) unary() (IExpr, error) {
+func (p *Parser) unary() (IExpr, error) {
 	if p.match(BANG, BANG_EQUAL) {
 		operator := p.prevoius()
 		right, err := p.unary()
@@ -133,7 +133,7 @@ func (p Parser) unary() (IExpr, error) {
 	return p.primary()
 }
 
-func (p Parser) primary() (IExpr, error) {
+func (p *Parser) primary() (IExpr, error) {
 	if p.match(FALSE) {
 		return NewLiteralExpr(false), nil
 	}
@@ -165,7 +165,7 @@ func (p Parser) primary() (IExpr, error) {
 	return nil, fmt.Errorf("expected expression")
 }
 
-func (p Parser) consume(t TokenType, msg string) (*Token, error) {
+func (p *Parser) consume(t TokenType, msg string) (*Token, error) {
 	if p.check(t) {
 		token := p.advance()
 
@@ -175,7 +175,7 @@ func (p Parser) consume(t TokenType, msg string) (*Token, error) {
 	return nil, fmt.Errorf("error in line %d: %s", p.peek().line, msg)
 }
 
-func (p Parser) match(tokens ...TokenType) bool {
+func (p *Parser) match(tokens ...TokenType) bool {
 	for _, t := range tokens {
 		if p.check(t) {
 			p.advance()
