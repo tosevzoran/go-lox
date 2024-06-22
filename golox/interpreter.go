@@ -22,6 +22,13 @@ func (i Interpteter) VisitBinaryExpr(expr BinaryExpr) (any, error) {
 		return nil, err
 	}
 
+	// check the operand types for all operations except PLUS
+	err = checkNumberOperands(expr.operator, left, right)
+
+	if expr.operator.tokenType != PLUS && err != nil {
+		return nil, err
+	}
+
 	switch expr.operator.tokenType {
 	case MINUS:
 		return left.(float64) - right.(float64), nil
@@ -83,6 +90,12 @@ func (i Interpteter) VisitUnaryExpr(expr UnaryExpr) (any, error) {
 
 	switch expr.operator.tokenType {
 	case MINUS:
+		err := checkNumberOperand(expr.operator, right)
+
+		if err != nil {
+			return nil, err
+		}
+
 		return -right.(float64), nil
 	case BANG:
 		return !isTruthy(right), nil
@@ -119,4 +132,24 @@ func isEqual(a any, b any) bool {
 	}
 
 	return a == b
+}
+
+func checkNumberOperand(operator Token, operand any) error {
+	if _, ok := operand.(float64); !ok {
+		return NewRuntimeError(operator, fmt.Sprintf("%v operand must be a number", operand))
+	}
+
+	return nil
+}
+
+func checkNumberOperands(operator Token, left any, right any) error {
+	if _, ok := left.(float64); !ok {
+		return NewRuntimeError(operator, fmt.Sprintf("%v operand must be a number", left))
+	}
+
+	if _, ok := right.(float64); !ok {
+		return NewRuntimeError(operator, fmt.Sprintf("%v operand must be a number", right))
+	}
+
+	return nil
 }
