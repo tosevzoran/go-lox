@@ -2,7 +2,8 @@ package golox
 
 import "fmt"
 
-/*
+/** Expressions:
+
 expression     → equality ;
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
@@ -10,12 +11,23 @@ term           → factor ( ( "-" | "+" ) factor )* ;
 factor         → unary ( ( "/" | "*" ) unary )* ;
 unary          → ( "!" | "-" ) unary | primary ;
 primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
-
-
-The parser is represented with a struce
-
-Each rule becomes a function
 */
+
+/** Statements
+
+program        → statement* EOF ;
+
+statement      → exprStmt
+               | printStmt ;
+
+exprStmt       → expression ";" ;
+printStmt      → "print" expression ";" ;
+*/
+
+/**
+* The parser is represented with a struct
+* Each rule becomes a function
+ */
 
 type Parser struct {
 	tokens  []Token
@@ -26,8 +38,54 @@ func NewParser(t []Token) Parser {
 	return Parser{t, 0}
 }
 
-func (p *Parser) parse() (IExpr, error) {
-	return p.expression()
+func (p *Parser) parse() ([]IStmt, error) {
+	statements := []IStmt{}
+
+	for !p.isAtEnd() {
+		stmt, err := p.statement()
+
+		if err != nil {
+			return nil, err
+		}
+
+		statements = append(statements, stmt)
+	}
+
+	return statements, nil
+}
+
+func (p *Parser) statement() (IStmt, error) {
+	if p.match(PRINT) {
+		return p.printStatement()
+	}
+
+	return p.expressionStatement()
+}
+
+func (p *Parser) printStatement() (IStmt, error) {
+	expr, err := p.expression()
+
+	if err != nil {
+		return nil, err
+	}
+
+	// the print token is already matched in the statement fn
+	p.consume(SEMICOLON, "expected ';' after a valye")
+
+	return NewPrintStmt(expr), nil
+}
+
+func (p *Parser) expressionStatement() (IStmt, error) {
+	expr, err := p.expression()
+
+	if err != nil {
+		return nil, err
+	}
+
+	// the print token is already matched in the statement fn
+	p.consume(SEMICOLON, "expected ';' after a valye")
+
+	return NewExpressionStmt(expr), nil
 }
 
 func (p *Parser) expression() (IExpr, error) {

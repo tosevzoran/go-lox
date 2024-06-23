@@ -64,11 +64,10 @@ func run(source string) {
 
 	interpreter := NewInterpreter()
 
-	val, err := interpreter.interpret(expressions)
+	err = interpreter.interpret(expressions)
 
 	if err != nil {
 		panic(fmt.Sprintf("error while interpreting %v", err))
 	}
 
-	fmt.Println(val)
 }

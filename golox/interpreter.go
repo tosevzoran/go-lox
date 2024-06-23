@@ -2,15 +2,27 @@ package golox
 
 import "fmt"
 
-// the interpreter struct needs to implement IExprVisitor interface
+// the interpreter struct needs to implement IExprVisitor and IStmtVisitor interfaces
 type Interpteter struct{}
 
 func NewInterpreter() Interpteter {
 	return Interpteter{}
 }
 
-func (i Interpteter) interpret(expr IExpr) (any, error) {
-	return i.evaluate(expr)
+func (i Interpteter) interpret(stmts []IStmt) error {
+	for _, stmt := range stmts {
+		err := i.execute(stmt)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// the statement analogue to the evaluate()
+func (i Interpteter) execute(stmt IStmt) error {
+	return stmt.Accept(i)
 }
 
 func (i Interpteter) VisitBinaryExpr(expr BinaryExpr) (any, error) {
@@ -110,6 +122,26 @@ func (i Interpteter) VisitUnaryExpr(expr UnaryExpr) (any, error) {
 
 func (i Interpteter) evaluate(expr IExpr) (any, error) {
 	return expr.Accept(i)
+}
+
+// VisitExpressionStmt implements IStmtVisitor.
+func (i Interpteter) VisitExpressionStmt(stmt ExpressionStmt) error {
+	_, err := i.evaluate(stmt.expr)
+
+	return err
+}
+
+// VisitPrintStmt implements IStmtVisitor.
+func (i Interpteter) VisitPrintStmt(stmt PrintStmt) error {
+	val, err := i.evaluate(stmt.expr)
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(val)
+
+	return nil
 }
 
 func isTruthy(value any) bool {
